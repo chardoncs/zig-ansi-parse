@@ -98,7 +98,7 @@ const behavioral_code_map = std.StaticStringMap(u8).initComptime(.{
     .{ "LF", '\n' },
 });
 
-fn isNumber(input: []const u8) bool {
+fn isInteger(input: []const u8) bool {
     for (input) |ch| {
         switch (ch) {
             '0'...'9' => {},
@@ -109,6 +109,21 @@ fn isNumber(input: []const u8) bool {
     }
 
     return true;
+}
+
+fn toInteger(input: []const u8) u32 {
+    var output: u32 = 0;
+
+    for (input) |ch| {
+        switch (ch) {
+            '0'...'9' => {
+                output = output * 10 + @as(u32, @intCast(ch - '0'));
+            },
+            else => {},
+        }
+    }
+
+    return output;
 }
 
 /// Parse a format string to ANSI-escapable
@@ -131,8 +146,13 @@ pub fn parse(allocator: Allocator, input: []const u8) Allocator.Error![]const u8
                     '!' => {
                         // Behavioral
                         j += 1;
+                        var times: u32 = 1;
 
-                        // TODO
+                        while (j < input.len) {
+                            // TODO
+
+                            j += 1;
+                        }
                     },
                     else => {
                         // ANSI
@@ -173,12 +193,12 @@ pub fn parse(allocator: Allocator, input: []const u8) Allocator.Error![]const u8
 
                             for (split_arr) |delim_i| {
                                 const tag_piece = tag[prev..delim_i];
-                                try output.appendSlice(if (isNumber(tag_piece)) tag_piece else .{ansi_code_map.get(tag_piece)} orelse continue);
+                                try output.appendSlice(if (isInteger(tag_piece)) tag_piece else .{ansi_code_map.get(tag_piece)} orelse continue);
                                 prev = delim_i + 1;
                             }
 
                             const last_tag = tag[prev..];
-                            if (isNumber(last_tag)) {
+                            if (isInteger(last_tag)) {
                                 try output.appendSlice(last_tag);
                             } else {
                                 if (ansi_code_map.get(last_tag)) |last_code| {
