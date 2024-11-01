@@ -111,21 +111,6 @@ fn isInteger(input: []const u8) bool {
     return true;
 }
 
-fn toInteger(input: []const u8) u32 {
-    var output: u32 = 0;
-
-    for (input) |ch| {
-        switch (ch) {
-            '0'...'9' => {
-                output = output * 10 + @as(u32, @intCast(ch - '0'));
-            },
-            else => {},
-        }
-    }
-
-    return output;
-}
-
 /// Parse a format string to ANSI-escapable
 pub fn parse(allocator: Allocator, input: []const u8) Allocator.Error![]const u8 {
     const output = try ArrayList(u8).initCapacity(allocator, input.len * 1.5);
@@ -146,10 +131,38 @@ pub fn parse(allocator: Allocator, input: []const u8) Allocator.Error![]const u8
                     '!' => {
                         // Behavioral
                         j += 1;
-                        var times: u32 = 1;
+                        var times: ?u32 = null;
+                        var cursor: usize = 0;
+                        var ch2: u8 = undefined;
+                        var parse_times = false;
 
                         while (j < input.len) {
-                            // TODO
+                            ch2 = input[j];
+
+                            switch (ch2) {
+                                '*' => {
+                                    parse_times = true;
+                                },
+
+                                '>' => {
+                                    tag[cursor] = 0;
+                                    const code = behavioral_code_map.get(tag[0..cursor]) orelse break;
+
+                                    try output.appendNTimes(code, @intCast(times orelse 1));
+                                    i = j;
+                                    ch = ch2;
+                                    break;
+                                },
+
+                                else => {
+                                    if (parse_times) {
+                                        times = (times orelse 0) * 10 + @as(u32, @intCast(ch2));
+                                    } else if (cursor < tag.len) {
+                                        tag[cursor] = ch2;
+                                        cursor += 1;
+                                    }
+                                },
+                            }
 
                             j += 1;
                         }
