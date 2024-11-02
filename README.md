@@ -30,8 +30,9 @@ const ansi_parse = b.dependency("ansi-parse", .{});
 ```zig
 const std = @import("std");
 const parseComptime = @import("ansi-parse").parseComptime;
+//const parseComptimeDefault = @import("ansi-parse").parseComptimeDefault; // to use default quota
 
-const demo_text = parseComptime(
+const demo_text = parseComptime(1000, // Branch quota
     \\<CYAN>Greetings!</> I'm <B>bold</> and <BLUE;B>blue</>
     \\<NYAN>Ignore this</>
     \\\<escaped>
