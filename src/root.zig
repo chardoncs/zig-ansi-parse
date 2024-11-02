@@ -56,7 +56,7 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "BRCYAN", "96" }, // Bright cyan
     .{ "BRWHITE", "97" }, // Bright white
     .{ "FG", "38" }, // Custom foreground color  TODO: implement check
-    .{ "DEFAULT", "39" }, // Default foreground
+    .{ "FGDEFAULT", "39" }, // Default foreground
     // Background
     .{ "BGBLACK", "40" }, // Black
     .{ "BGRED", "41" }, // Red
