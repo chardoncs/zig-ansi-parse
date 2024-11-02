@@ -159,7 +159,7 @@ const SPLIT_CAPACITY = 10;
 /// Parse a format string to ANSI-escapable
 pub fn parseComptime(comptime input: []const u8) [:0]const u8 {
     comptime {
-        const est_size = input.len * 4; // TODO: Estimate capacity
+        const est_size = input.len * 4; // TODO: Estimate capacity. Current solution is not perfect.
         var output: [est_size]u8 = .{0} ** est_size;
         const Out = @TypeOf(output);
         var size: usize = 0;
@@ -313,4 +313,122 @@ pub fn parseComptime(comptime input: []const u8) [:0]const u8 {
 
         return (output[0..size].* ++ .{0})[0..size :0];
     }
+}
+
+// Test cases
+
+const test_bold = parseComptime(
+    \\The text is <B>bold</>.
+    \\
+);
+
+test "Bold font (comptime)" {
+    try std.testing.expectEqualStrings("The text is \x1b[1mbold\x1b[0m.\n", test_bold);
+}
+
+const test_italic = parseComptime(
+    \\The text is <I>italic</>.
+    \\
+);
+
+test "Italic font (comptime)" {
+    try std.testing.expectEqualStrings("The text is \x1b[3mitalic\x1b[0m.\n", test_italic);
+}
+
+const test_bold_italic = parseComptime(
+    \\<B;I>bold and italic</>
+    \\
+);
+
+test "Merge bold and italic font (comptime)" {
+    try std.testing.expectEqualStrings("\x1b[1;3mbold and italic\x1b[0m\n", test_bold_italic);
+}
+
+const test_triple_merger1 = parseComptime(
+    \\<B;I;RED>styled</> text
+    \\<GREEN;B>over here</>
+    \\
+);
+
+test "Triple merger normal (comptime)" {
+    try std.testing.expectEqualStrings("\x1b[1;3;31mstyled\x1b[0m text\n\x1b[32;1mover here\x1b[0m\n", test_triple_merger1);
+}
+
+const test_multiple_merger1 = parseComptime(
+    \\<B;I;RED;GREEN;/> styled? no!
+);
+
+test "Multiple (under 10) merger with reset (comptime)" {
+    try std.testing.expectEqualStrings("\x1b[1;3;31;32;0m styled? no!", test_multiple_merger1);
+}
+
+const one_tab = parseComptime(
+    \\Name<!TAB>Age<!TAB>Description
+    \\
+);
+
+test "Tab once (comptime)" {
+    try std.testing.expectEqualStrings("Name\tAge\tDescription\n", one_tab);
+}
+
+const five_tabs = parseComptime(
+    \\Start<!TAB*5>tabsssss!
+    \\
+);
+
+test "5 tabs (comptime)" {
+    try std.testing.expectEqualStrings("Start" ++ ("\t" ** 5) ++ "tabsssss!\n", five_tabs);
+}
+
+const tabs_x12 = parseComptime(
+    \\Start<!TAB*12>tabs!
+    \\
+);
+
+test "12 tabs (comptime)" {
+    try std.testing.expectEqualStrings("Start" ++ ("\t" ** 12) ++ "tabs!\n", tabs_x12);
+}
+
+const fmt_tabs_x300 =
+    \\Start<!TAB*300>tabs!
+;
+const tabs_x300 = parseComptime(fmt_tabs_x300);
+
+test "Leaking test (tabs x300) (comptime)" {
+    const str = "Start" ++ ("\t" ** 300) ++ "tabs!";
+
+    // TODO: Pass this test after capacity estimation implemented
+    //try std.testing.expectEqualStrings(str, tabs_x300);
+
+    // Currently the output will get leaked if it's longer than the format testing length * 4
+    try std.testing.expectEqualStrings(str[0 .. fmt_tabs_x300.len * 4], tabs_x300);
+}
+
+const lf_test1 = parseComptime(
+    \\Topic:<!LF>Blah blah...<!LF>
+    \\
+);
+
+test "Line feed test 1 (comptime)" {
+    try std.testing.expectEqualStrings("Topic:\nBlah blah...\n\n", lf_test1);
+}
+
+const lf_x3_test1 = parseComptime(
+    \\Topic:<!LF*3>
+    \\
+    \\
+    \\
+);
+
+test "Line feed test 2 (comptime)" {
+    try std.testing.expectEqualStrings("Topic:" ++ ("\n" ** 6), lf_x3_test1);
+}
+
+const cr_test1 = parseComptime(
+    \\That<!CR>This is good!
+    \\
+);
+
+test "Carriage return test 1 (comptime)" {
+    try std.testing.expectEqualStrings("That\rThis is good!\n", cr_test1);
 }
