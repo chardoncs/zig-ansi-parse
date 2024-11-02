@@ -57,7 +57,7 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "BRMAGENTA", "95" }, // Bright magenta
     .{ "BRCYAN", "96" }, // Bright cyan
     .{ "BRWHITE", "97" }, // Bright white
-    .{ "FG", "38" }, // Custom foreground color  TODO: implement check
+    .{ "FG", "38" }, // Custom foreground color
     .{ "FGDEFAULT", "39" }, // Default foreground
     // Background
     .{ "BGBLACK", "40" }, // Black
@@ -78,7 +78,7 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "BGBRMAGENTA", "105" }, // Bright magenta
     .{ "BGBRCYAN", "106" }, // Bright cyan
     .{ "BGBRWHITE", "107" }, // Bright white
-    .{ "BG", "48" }, // Custom background color  TODO: implement check
+    .{ "BG", "48" }, // Custom background color
     .{ "BGDEFAULT", "49" }, // Default background
 
     .{ "FRAMED", "51" },
@@ -86,7 +86,7 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "OVERLINED", "53" },
     .{ "/FRAMED", "54" }, // Disable frames and circles
     .{ "/OVERLINED", "55" }, // Disable overlines
-    .{ "UCOLOR", "58" }, // Custom underline color   TODO: implement check
+    .{ "UCOLOR", "58" }, // Custom underline color
     .{ "UDEFAULT", "59" }, // Default underline color
     .{ "SUPER", "73" }, // Superscript
     .{ "SUB", "74" }, // Subscript
