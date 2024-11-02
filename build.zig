@@ -22,13 +22,11 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(exe);
 
-    const module = b.addModule("ansi-parse", .{
+    _ = b.addModule("ansi-parse", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
-
-    b.installArtifact(module);
 
     const run_cmd = b.addRunArtifact(exe);
 
