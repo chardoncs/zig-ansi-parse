@@ -15,6 +15,7 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "RBLINK", "6" }, // Rapid blink
     .{ "INVERT", "7" }, // Swap foreground with background (limited support)
     .{ "CONCEAL", "8" }, // Conceal (limited support)
+    .{ "/REVEAL", "8" },
     .{ "STRIKE", "9" }, // Strikethrough (limited support)
     .{ "FONT", "10" }, // Default font
     .{ "FONT1", "11" },
@@ -28,14 +29,15 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "FONT9", "19" },
     .{ "FRAKTUR", "20" }, // Fraktur font (very limited support)
     .{ "DBLU", "21" }, // Double underline
-    .{ "NOB", "21" }, // Disable bold
+    .{ "/B", "21" }, // Disable bold
     .{ "NORMAL", "22" }, // Normal intensity (disable bold & faint)
-    .{ "NOI", "23" }, // Disable italic and blackletter
-    .{ "NOU", "24" }, // Disable underlines
-    .{ "NOBLINK", "25" }, // Disable blinking
-    .{ "NOREV", "27" }, // Not reversed
+    .{ "/I", "23" }, // Disable italic and blackletter
+    .{ "/U", "24" }, // Disable underlines
+    .{ "/BLINK", "25" }, // Disable blinking
+    .{ "/REV", "27" }, // Not reversed
     .{ "REVEAL", "28" }, // Disable conceal
-    .{ "NOSTRIKE", "29" }, // Disable strikethroughs
+    .{ "/CONCEAL", "28" },
+    .{ "/STRIKE", "29" }, // Disable strikethroughs
     // Foreground
     .{ "BLACK", "30" }, // Black
     .{ "RED", "31" }, // Red
@@ -82,13 +84,14 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "FRAMED", "51" },
     .{ "ENCIRCLED", "52" },
     .{ "OVERLINED", "53" },
-    .{ "NOFRAME", "54" }, // Disable frames and circles
-    .{ "NOOVERLINE", "55" }, // Disable overlines
+    .{ "/FRAMED", "54" }, // Disable frames and circles
+    .{ "/OVERLINED", "55" }, // Disable overlines
     .{ "UCOLOR", "58" }, // Custom underline color   TODO: implement check
     .{ "UDEFAULT", "59" }, // Default underline color
     .{ "SUPER", "73" }, // Superscript
     .{ "SUB", "74" }, // Subscript
-    .{ "NOS", "75" }, // Disable superscript and subscript
+    .{ "/SUPER", "75" }, // Disable superscript and subscript
+    .{ "/SUB", "75" },
 });
 
 const behavioral_code_map = std.StaticStringMap(u8).initComptime(.{
