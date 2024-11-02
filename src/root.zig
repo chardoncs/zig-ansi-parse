@@ -110,15 +110,6 @@ fn isInteger(input: []const u8) bool {
     return true;
 }
 
-fn assignChar(comptime T: type) fn (*T, *usize, u8) void {
-    return comptime struct {
-        fn f(arr: *T, cursor: *usize, ch: u8) void {
-            arr.*[cursor.*] = ch;
-            cursor.* += 1;
-        }
-    }.f;
-}
-
 fn append(comptime T: type) fn (*T, *usize, u8) void {
     return comptime struct {
         fn f(arr: *T, cursor: *usize, ch: u8) void {
@@ -126,7 +117,8 @@ fn append(comptime T: type) fn (*T, *usize, u8) void {
                 return;
             }
 
-            assignChar(T)(arr, cursor, ch);
+            arr.*[cursor.*] = ch;
+            cursor.* += 1;
         }
     }.f;
 }
@@ -139,7 +131,8 @@ fn appendSlice(comptime T: type) fn (*T, *usize, []const u8) void {
                     break;
                 }
 
-                assignChar(T)(arr, cursor, ch);
+                arr.*[cursor.*] = ch;
+                cursor.* += 1;
             }
         }
     }.f;
@@ -153,7 +146,8 @@ fn appendNTimes(comptime T: type) fn (*T, *usize, u8, usize) void {
                     break;
                 }
 
-                assignChar(T)(arr, cursor, ch);
+                arr.*[cursor.*] = ch;
+                cursor.* += 1;
             }
         }
     }.f;
@@ -229,7 +223,7 @@ pub fn parseComptime(comptime input: []const u8) [:0]const u8 {
                             var is_closed = false;
                             var ch2: u8 = undefined;
                             var cursor: usize = 0;
-                            var split_size = 0;
+                            var split_size: usize = 0;
 
                             while (j < input.len and cursor < tag.len) {
                                 ch2 = input[j];
@@ -243,7 +237,7 @@ pub fn parseComptime(comptime input: []const u8) [:0]const u8 {
 
                                     else => {
                                         if (ch2 == ';' and split_size < split_arr.len) {
-                                            split_arr[split_size] = ch2;
+                                            split_arr[split_size] = cursor;
                                             split_size += 1;
                                         }
 
@@ -265,10 +259,10 @@ pub fn parseComptime(comptime input: []const u8) [:0]const u8 {
                                     prev = split_arr[si] + 1;
 
                                     appendSlice(Out)(&output, &size, if (isInteger(tag_piece)) tag_piece else ansi_code_map.get(tag_piece) orelse continue);
-                                    append(&output, &size, ';');
+                                    append(Out)(&output, &size, ';');
                                 }
 
-                                const last_tag = tag[prev..];
+                                const last_tag = tag[prev..cursor];
 
                                 if (isInteger(last_tag)) {
                                     appendSlice(Out)(&output, &size, last_tag);
@@ -277,7 +271,6 @@ pub fn parseComptime(comptime input: []const u8) [:0]const u8 {
                                         appendSlice(Out)(&output, &size, last_code);
                                     }
                                 }
-
                                 append(Out)(&output, &size, 'm');
 
                                 i = j;
