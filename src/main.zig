@@ -2,12 +2,16 @@ const std = @import("std");
 
 const root = @import("./root.zig");
 
-const ComptimeParser = root.ComptimeParser;
+const parseComptime = root.parseComptime;
 
-const demo_text = ComptimeParser(
-    \\<CYAN>Hello!</> I'm <B>bold</> and <BLUE;B>blue</>
+const demo_text = parseComptime(
+    \\<CYAN>Greetings!</> I'm <B>bold</> and <BLUE;B>blue</>
+    \\<NYAN>Ignore this</>
+    \\\<escaped>
+    \\<!TAB>tabbed<!LF>Ollal<!CR>Hello
+    \\<!TAB*3>Three tabs
     \\
-).parse();
+);
 
 pub fn main() !void {
     std.debug.print(demo_text, .{});
