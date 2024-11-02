@@ -1,6 +1,6 @@
 # zig-ansi-parse
 
-Comptime-proof library parsing human-readable to ANSI-escapable.
+Comptime-proof ANSI format parsing library for Zig.
 
 [How it works?](https://github.com/chardoncs/zig-ansi-parse/wiki/Syntax)
 
