@@ -18,7 +18,7 @@ Or fetch the git repo for latest updates
 zig fetch --save git+https://github.com/chardoncs/zig-ansi-parse
 ```
 
-2. Config your `build.zig`. Replace `<compile-var>` with the variable name of the compile target
+2. Configure your `build.zig`. Replace `<compile-var>` with the variable name of the compile target
 
 ```zig
 const ansi_parse = b.dependency("ansi-parse", .{});
