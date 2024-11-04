@@ -295,7 +295,7 @@ pub fn parseComptime(comptime branch_quota: u32, comptime input: []const u8) [:0
                     }
 
                     switch (input[j]) {
-                        '<', '>' => {
+                        '<', '>', '\\' => {
                             i = j;
                             ch = input[i];
                             append(Out)(&output, &size, ch);
