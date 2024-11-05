@@ -1,9 +1,5 @@
 # zig-ansi-parse
 
-> [!NOTE]
->
-> This library is currently unstable. Expect frequent breaking changes.
-
 Comptime-proof ANSI format parsing library for Zig.
 
 [How it works?](https://github.com/chardoncs/zig-ansi-parse/wiki/Syntax)
