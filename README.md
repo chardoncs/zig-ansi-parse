@@ -34,18 +34,25 @@ const ansi_parse = b.dependency("ansi-parse", .{});
 ```zig
 const std = @import("std");
 const parseComptime = @import("ansi-parse").parseComptime;
-//const parseComptimeDefault = @import("ansi-parse").parseComptimeDefault; // to use default quota
 
-const demo_text = parseComptime(1000, // Branch quota
+const demo_text = parseComptime(
     \\<CYAN>Greetings!</> I'm <B>bold</> and <BLUE;B>blue</>
     \\<NYAN>Ignore this</>
     \\\<escaped>
     \\<!TAB>tabbed<!LF>Ollal<!CR>Hello
     \\<!TAB*3>Three tabs
     \\
+, .{} // Options
 );
 
 pub fn main() !void {
     std.debug.print(demo_text, .{});
 }
 ```
+
+## Options
+
+|     Name     |  Default value  |        Description      |
+|--------------|-----------------|-------------------------|
+| branch_quota | 200_000         | Evaluation branch quota, a larger quota can prevent the compiler from giving up caused by loops |
+| out_size     | `input.len * 4` | (Comptime only) Capacity of the output string, set a larger value if the output is truncated |
