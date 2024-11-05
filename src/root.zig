@@ -100,70 +100,54 @@ const behavioral_code_map = std.StaticStringMap(u8).initComptime(.{
     .{ "LF", '\n' },
 });
 
-fn isInteger(input: []const u8) bool {
-    for (input) |ch| {
-        switch (ch) {
-            '0'...'9' => {},
-            else => {
-                return false;
-            },
-        }
-    }
-
-    return true;
-}
-
-fn append(comptime T: type) fn (*T, *usize, u8) void {
-    return comptime struct {
-        fn f(arr: *T, cursor: *usize, ch: u8) void {
-            if (cursor.* >= arr.len) {
-                return;
-            }
-
-            arr.*[cursor.*] = ch;
-            cursor.* += 1;
-        }
-    }.f;
-}
-
-fn appendSlice(comptime T: type) fn (*T, *usize, []const u8) void {
-    return comptime struct {
-        fn f(arr: *T, cursor: *usize, chs: []const u8) void {
-            for (chs) |ch| {
-                if (cursor.* >= arr.len) {
-                    break;
-                }
-
-                arr.*[cursor.*] = ch;
-                cursor.* += 1;
-            }
-        }
-    }.f;
-}
-
-fn appendNTimes(comptime T: type) fn (*T, *usize, u8, usize) void {
-    return comptime struct {
-        fn f(arr: *T, cursor: *usize, ch: u8, times: usize) void {
-            for (0..times) |_| {
-                if (cursor.* >= arr.len) {
-                    break;
-                }
-
-                arr.*[cursor.*] = ch;
-                cursor.* += 1;
-            }
-        }
-    }.f;
-}
-
 const TAG_GROUP_CAPACITY = 171;
 const SPLIT_CAPACITY = 10;
 
+const DEFAULT_BRANCH_QUOTA = 200_000;
+const INTERNAL_BRANCH_QUOTA = 1_000_000;
+
+inline fn assertTypeComptime(comptime Actual: type, comptime Expected: type, comptime name: []const u8) void {
+    if (Expected != Actual) {
+        @compileError("expect " ++ @typeName(Expected) ++ " as the type of `" ++ name ++ "`, found " ++ @typeName(Actual));
+    }
+}
+
+const ParserOptions = struct {
+    branch_quota: ?u32,
+    out_size: ?usize,
+
+    pub fn initComptime(comptime opt: anytype) ParserOptions {
+        const OptType = @TypeOf(opt);
+        const opt_type_info = @typeInfo(OptType);
+        if (opt_type_info != .Struct) {
+            @compileError("expect a struct as options, found " ++ @typeName(OptType));
+        }
+
+        const fields = opt_type_info.Struct.fields;
+
+        comptime var out_struct = ParserOptions{
+            .branch_quota = null,
+            .out_size = null,
+        };
+
+        @setEvalBranchQuota(INTERNAL_BRANCH_QUOTA);
+        inline for (fields) |field| {
+            if (@hasField(ParserOptions, field.name)) {
+                @field(out_struct, field.name) = @field(opt, field.name);
+            }
+        }
+
+        return out_struct;
+    }
+};
+
 /// Parse a format string to ANSI-escapable
-pub fn parseComptime(comptime branch_quota: u32, comptime input: []const u8) [:0]const u8 {
+pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]const u8 {
+    const opt_struct = ParserOptions.initComptime(opt);
+
     comptime {
-        @setEvalBranchQuota(branch_quota);
-        const est_size = input.len * 4; // TODO: Estimate capacity. Current solution is not perfect.
+        @setEvalBranchQuota(opt_struct.branch_quota orelse DEFAULT_BRANCH_QUOTA);
+        const est_size = opt_struct.out_size orelse (input.len * 4);
         var output: [est_size]u8 = .{0} ** est_size;
         const Out = @TypeOf(output);
         var size: usize = 0;
@@ -321,6 +305,62 @@ pub fn parseComptime(comptime branch_quota: u32, comptime input: []const u8) [:0
 
 pub fn parseComptimeDefault(comptime input: []const u8) [:0]const u8 {
     return parseComptime(1000, input);
+}
+
+fn isInteger(input: []const u8) bool {
+    for (input) |ch| {
+        switch (ch) {
+            '0'...'9' => {},
+            else => {
+                return false;
+            },
+        }
+    }
+
+    return true;
+}
+
+fn append(comptime T: type) fn (*T, *usize, u8) void {
+    return comptime struct {
+        fn f(arr: *T, cursor: *usize, ch: u8) void {
+            if (cursor.* >= arr.len) {
+                return;
+            }
+
+            arr.*[cursor.*] = ch;
+            cursor.* += 1;
+        }
+    }.f;
+}
+
+fn appendSlice(comptime T: type) fn (*T, *usize, []const u8) void {
+    return comptime struct {
+        fn f(arr: *T, cursor: *usize, chs: []const u8) void {
+            for (chs) |ch| {
+                if (cursor.* >= arr.len) {
+                    break;
+                }
+
+                arr.*[cursor.*] = ch;
+                cursor.* += 1;
+            }
+        }
+    }.f;
+}
+
+fn appendNTimes(comptime T: type) fn (*T, *usize, u8, usize) void {
+    return comptime struct {
+        fn f(arr: *T, cursor: *usize, ch: u8, times: usize) void {
+            for (0..times) |_| {
+                if (cursor.* >= arr.len) {
+                    break;
+                }
+
+                arr.*[cursor.*] = ch;
+                cursor.* += 1;
+            }
+        }
+    }.f;
 }
 
 // Test cases
