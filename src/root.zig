@@ -303,8 +303,8 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
     }
 }
 
-pub fn parseComptimeDefault(comptime input: []const u8) [:0]const u8 {
-    return parseComptime(1000, input);
+inline fn parseComptimeDefault(comptime input: []const u8) [:0]const u8 {
+    return parseComptime(input, .{});
 }
 
 fn isInteger(input: []const u8) bool {
