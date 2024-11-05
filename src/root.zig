@@ -434,16 +434,12 @@ test "12 tabs (comptime)" {
 const fmt_tabs_x300 =
     \\Start<!TAB*300>tabs!
 ;
-const tabs_x300 = parseComptimeDefault(fmt_tabs_x300);
+const tabs_x300 = parseComptime(fmt_tabs_x300, .{ .out_size = 400 });
 
 test "Leaking test (tabs x300) (comptime)" {
     const str = "Start" ++ ("\t" ** 300) ++ "tabs!";
 
-    // TODO: Pass this test after capacity estimation implemented
-    //try std.testing.expectEqualStrings(str, tabs_x300);
-
-    // Currently the output will get leaked if it's longer than the format testing length * 4
-    try std.testing.expectEqualStrings(str[0 .. fmt_tabs_x300.len * 4], tabs_x300);
+    try std.testing.expectEqualStrings(str, tabs_x300);
 }
 
 const lf_test1 = parseComptimeDefault(
