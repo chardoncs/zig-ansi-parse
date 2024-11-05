@@ -54,5 +54,5 @@ pub fn main() !void {
 
 |     Name     |  Default value  |        Description      |
 |--------------|-----------------|-------------------------|
-| branch_quota | 200_000         | Evaluation branch quota, a larger quota can prevent the compiler from giving up caused by loops |
+| branch_quota | 200,000         | Evaluation branch quota, a larger quota can prevent the compiler from giving up caused by loops |
 | out_size     | `input.len * 4` | (Comptime only) Capacity of the output string, set a larger value if the output is truncated |
