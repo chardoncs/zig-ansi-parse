@@ -157,7 +157,7 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
         var tag: [TAG_GROUP_CAPACITY:0]u8 = .{0} ** TAG_GROUP_CAPACITY;
         var split_arr: [SPLIT_CAPACITY]usize = .{0} ** SPLIT_CAPACITY;
 
-        outer_parse_loop: while (i < input.len and size < output.len) {
+        outer_parse_loop: while (i < input.len and size < output.len) : (i += 1) {
             ch = input[i];
 
             switch (ch) {
@@ -173,7 +173,7 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
                             var ch2: u8 = undefined;
                             var parse_times = false;
 
-                            while (j < input.len) {
+                            while (j < input.len) : (j += 1) {
                                 ch2 = input[j];
 
                                 switch (ch2) {
@@ -202,8 +202,6 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
                                         }
                                     },
                                 }
-
-                                j += 1;
                             }
                         },
                         else => {
@@ -213,7 +211,7 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
                             var cursor: usize = 0;
                             var split_size: usize = 0;
 
-                            while (j < input.len and cursor < tag.len) {
+                            while (j < input.len and cursor < tag.len) : (j += 1) {
                                 ch2 = input[j];
 
                                 switch (ch2) {
@@ -233,8 +231,6 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
                                         cursor += 1;
                                     },
                                 }
-
-                                j += 1;
                             }
 
                             if (is_closed) {
@@ -295,8 +291,6 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
                     append(Out)(&output, &size, ch);
                 },
             }
-
-            i += 1;
         }
 
         return (output[0..size].* ++ .{0})[0..size :0];
