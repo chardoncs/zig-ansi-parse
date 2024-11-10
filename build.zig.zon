@@ -1,6 +1,6 @@
 .{
     .name = "ansi-parse",
-    .version = "0.1.0-zig0.14",
+    .version = "0.1.1-zig0.14",
     .minimum_zig_version = "0.13.0",
     .dependencies = .{},
     .paths = .{
