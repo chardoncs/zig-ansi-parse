@@ -28,9 +28,8 @@ const ansi_code_map = std.StaticStringMap([]const u8).initComptime(.{
     .{ "FONT8", "18" },
     .{ "FONT9", "19" },
     .{ "FRAKTUR", "20" }, // Fraktur font (very limited support)
-    .{ "DBLU", "21" }, // Double underline
-    .{ "/B", "21" }, // Disable bold
-    .{ "NORMAL", "22" }, // Normal intensity (disable bold & faint)
+    .{ "DBLU", "21" }, // Double underline (limited support)
+    .{ "/B", "22" }, // Normal intensity (disable bold & faint)
     .{ "/I", "23" }, // Disable italic and blackletter
     .{ "/U", "24" }, // Disable underlines
     .{ "/BLINK", "25" }, // Disable blinking
