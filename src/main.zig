@@ -5,7 +5,7 @@ const root = @import("./root.zig");
 const parseComptime = root.parseComptime;
 
 const demo_text = parseComptime(
-    \\<CYAN>Greetings!</> I'm <B>bold</> and <BLUE;B>blue</>
+    \\<CYAN>Greetings!</> I'm <B>bold</B> and <BLUE;B>blue</>
     \\<NYAN>Ignore this</>
     \\\<escaped>
     \\<!TAB>tabbed<!LF>Ollal<!CR>Hello
