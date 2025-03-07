@@ -118,11 +118,11 @@ const ParserOptions = struct {
     pub fn initComptime(comptime opt: anytype) ParserOptions {
         const OptType = @TypeOf(opt);
         const opt_type_info = @typeInfo(OptType);
-        if (opt_type_info != .Struct) {
+        if (opt_type_info != .@"struct") {
             @compileError("expect a struct as options, found " ++ @typeName(OptType));
         }
 
-        const fields = opt_type_info.Struct.fields;
+        const fields = opt_type_info.@"struct".fields;
 
         comptime var out_struct = ParserOptions{
             .branch_quota = null,
