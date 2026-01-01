@@ -358,114 +358,113 @@ fn appendNTimes(comptime T: type) fn (*T, *usize, u8, usize) void {
 
 // Test cases
 
-const test_bold = parseComptimeDefault(
-    \\The text is <B>bold</>.
-    \\
-);
-
 test "Bold font (comptime)" {
+    const test_bold = comptime parseComptimeDefault(
+        \\The text is <B>bold</>.
+        \\
+    );
     try std.testing.expectEqualStrings("The text is \x1b[1mbold\x1b[0m.\n", test_bold);
 }
 
-const test_italic = parseComptimeDefault(
-    \\The text is <I>italic</>.
-    \\
-);
-
 test "Italic font (comptime)" {
+    const test_italic = comptime parseComptimeDefault(
+        \\The text is <I>italic</>.
+        \\
+    );
     try std.testing.expectEqualStrings("The text is \x1b[3mitalic\x1b[0m.\n", test_italic);
 }
 
-const test_bold_italic = parseComptimeDefault(
-    \\<B;I>bold and italic</>
-    \\
-);
-
 test "Merge bold and italic font (comptime)" {
+    const test_bold_italic = comptime parseComptimeDefault(
+        \\<B;I>bold and italic</>
+        \\
+    );
+
     try std.testing.expectEqualStrings("\x1b[1;3mbold and italic\x1b[0m\n", test_bold_italic);
 }
 
-const test_triple_merger1 = parseComptimeDefault(
-    \\<B;I;RED>styled</> text
-    \\<GREEN;B>over here</>
-    \\
-);
-
 test "Triple merger normal (comptime)" {
+    const test_triple_merger1 = comptime parseComptimeDefault(
+        \\<B;I;RED>styled</> text
+        \\<GREEN;B>over here</>
+        \\
+    );
+
     try std.testing.expectEqualStrings("\x1b[1;3;31mstyled\x1b[0m text\n\x1b[32;1mover here\x1b[0m\n", test_triple_merger1);
 }
 
-const test_multiple_merger1 = parseComptimeDefault(
-    \\<B;I;RED;GREEN;/> styled? no!
-);
-
 test "Multiple (under 10) merger with reset (comptime)" {
+    const test_multiple_merger1 = comptime parseComptimeDefault(
+        \\<B;I;RED;GREEN;/> styled? no!
+    );
+
     try std.testing.expectEqualStrings("\x1b[1;3;31;32;0m styled? no!", test_multiple_merger1);
 }
 
-const one_tab = parseComptimeDefault(
-    \\Name<!TAB>Age<!TAB>Description
-    \\
-);
-
 test "Tab once (comptime)" {
+    const one_tab = comptime parseComptimeDefault(
+        \\Name<!TAB>Age<!TAB>Description
+        \\
+    );
+
     try std.testing.expectEqualStrings("Name\tAge\tDescription\n", one_tab);
 }
 
-const five_tabs = parseComptimeDefault(
-    \\Start<!TAB*5>tabsssss!
-    \\
-);
-
 test "5 tabs (comptime)" {
+    const five_tabs = comptime parseComptimeDefault(
+        \\Start<!TAB*5>tabsssss!
+        \\
+    );
+
     try std.testing.expectEqualStrings("Start" ++ ("\t" ** 5) ++ "tabsssss!\n", five_tabs);
 }
 
-const tabs_x12 = parseComptimeDefault(
-    \\Start<!TAB*12>tabs!
-    \\
-);
-
 test "12 tabs (comptime)" {
+    const tabs_x12 = comptime parseComptimeDefault(
+        \\Start<!TAB*12>tabs!
+        \\
+    );
+
     try std.testing.expectEqualStrings("Start" ++ ("\t" ** 12) ++ "tabs!\n", tabs_x12);
 }
 
-const fmt_tabs_x300 =
-    \\Start<!TAB*300>tabs!
-;
-const tabs_x300 = parseComptime(fmt_tabs_x300, .{ .out_size = 400 });
-
 test "Leaking test (tabs x300) (comptime)" {
+    const fmt_tabs_x300 =
+        \\Start<!TAB*300>tabs!
+    ;
+    const tabs_x300 = comptime parseComptime(fmt_tabs_x300, .{ .out_size = 400 });
+
     const str = "Start" ++ ("\t" ** 300) ++ "tabs!";
 
     try std.testing.expectEqualStrings(str, tabs_x300);
 }
 
-const lf_test1 = parseComptimeDefault(
-    \\Topic:<!LF>Blah blah...<!LF>
-    \\
-);
-
 test "Line feed test 1 (comptime)" {
+    const lf_test1 = comptime parseComptimeDefault(
+        \\Topic:<!LF>Blah blah...<!LF>
+        \\
+    );
+
+
     try std.testing.expectEqualStrings("Topic:\nBlah blah...\n\n", lf_test1);
 }
 
-const lf_x3_test1 = parseComptimeDefault(
-    \\Topic:<!LF*3>
-    \\
-    \\
-    \\
-);
-
 test "Line feed test 2 (comptime)" {
+    const lf_x3_test1 = comptime parseComptimeDefault(
+        \\Topic:<!LF*3>
+        \\
+        \\
+        \\
+    );
+
     try std.testing.expectEqualStrings("Topic:" ++ ("\n" ** 6), lf_x3_test1);
 }
 
-const cr_test1 = parseComptimeDefault(
-    \\That<!CR>This is good!
-    \\
-);
-
 test "Carriage return test 1 (comptime)" {
+    const cr_test1 = comptime parseComptimeDefault(
+        \\That<!CR>This is good!
+        \\
+    );
+
     try std.testing.expectEqualStrings("That\rThis is good!\n", cr_test1);
 }
