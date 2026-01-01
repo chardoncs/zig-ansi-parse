@@ -4,29 +4,31 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib = b.addStaticLibrary(.{
-        .name = "zig-ansi-parse",
+    const mod = b.addModule("ansi-parse", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
 
+    const lib = b.addLibrary(.{
+        .name = "zig-ansi-parse",
+        .root_module = mod,
+    });
+
     b.installArtifact(lib);
 
-    const exe = b.addExecutable(.{
-        .name = "zig-ansi-parse",
+    const exe_mod = b.addModule("ansi-parse", .{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
 
-    b.installArtifact(exe);
-
-    _ = b.addModule("ansi-parse", .{
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
+    const exe = b.addExecutable(.{
+        .name = "zig-ansi-parse",
+        .root_module = exe_mod,
     });
+
+    b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
 
@@ -40,17 +42,13 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     const lib_unit_tests = b.addTest(.{
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = mod,
     });
 
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
 
     const exe_unit_tests = b.addTest(.{
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = exe_mod,
     });
 
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
