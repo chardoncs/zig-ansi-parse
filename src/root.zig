@@ -314,7 +314,7 @@ fn isInteger(input: []const u8) bool {
 }
 
 fn append(comptime T: type) fn (*T, *usize, u8) void {
-    return comptime struct {
+    return struct {
         fn f(arr: *T, cursor: *usize, ch: u8) void {
             if (cursor.* >= arr.len) {
                 return;
@@ -327,7 +327,7 @@ fn append(comptime T: type) fn (*T, *usize, u8) void {
 }
 
 fn appendSlice(comptime T: type) fn (*T, *usize, []const u8) void {
-    return comptime struct {
+    return struct {
         fn f(arr: *T, cursor: *usize, chs: []const u8) void {
             for (chs) |ch| {
                 if (cursor.* >= arr.len) {
@@ -342,7 +342,7 @@ fn appendSlice(comptime T: type) fn (*T, *usize, []const u8) void {
 }
 
 fn appendNTimes(comptime T: type) fn (*T, *usize, u8, usize) void {
-    return comptime struct {
+    return struct {
         fn f(arr: *T, cursor: *usize, ch: u8, times: usize) void {
             for (0..times) |_| {
                 if (cursor.* >= arr.len) {
