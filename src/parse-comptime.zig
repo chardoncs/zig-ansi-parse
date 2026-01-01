@@ -34,9 +34,9 @@ pub const ParserOptions = struct {
     }
 };
 
-fn StaticArrayProxy(capacity: usize) type {
+fn StaticArrayProxy(hard_size: usize) type {
     return struct {
-        ptr: [capacity]u8,
+        ptr: [hard_size]u8,
 
         len: usize,
         capacity: usize,
