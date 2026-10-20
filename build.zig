@@ -17,15 +17,18 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(lib);
 
-    const exe_mod = b.addModule("ansi-parse", .{
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
+    // The demo executable consumes the library through its public module,
+    // just like an external user would.
     const exe = b.addExecutable(.{
         .name = "zig-ansi-parse",
-        .root_module = exe_mod,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "ansi-parse", .module = mod },
+            },
+        }),
     });
 
     b.installArtifact(exe);
@@ -34,9 +37,8 @@ pub fn build(b: *std.Build) void {
 
     run_cmd.step.dependOn(b.getInstallStep());
 
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
+    // `zig build run -- arg1 arg2`
+    run_cmd.addPassthruArgs();
 
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
@@ -48,7 +50,7 @@ pub fn build(b: *std.Build) void {
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
 
     const exe_unit_tests = b.addTest(.{
-        .root_module = exe_mod,
+        .root_module = exe.root_module,
     });
 
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);

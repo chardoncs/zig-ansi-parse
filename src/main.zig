@@ -1,8 +1,6 @@
 const std = @import("std");
 
-const root = @import("./root.zig");
-
-const parseComptime = root.parseComptime;
+const parseComptime = @import("ansi-parse").parseComptime;
 
 pub fn main() !void {
     const demo_text = comptime parseComptime(

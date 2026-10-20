@@ -2,7 +2,7 @@
     .name = .ansi_parse,
     .version = "0.2.1",
     .fingerprint = 0x9cd00b1cbb15614a,
-    .minimum_zig_version = "0.15.2",
+    .minimum_zig_version = "0.17.0",
     .dependencies = .{},
     .paths = .{
         "build.zig",

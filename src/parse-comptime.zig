@@ -16,7 +16,7 @@ pub const ParserOptions = struct {
             @compileError("expect a struct as options, found " ++ @typeName(OptType));
         }
 
-        const fields = opt_type_info.@"struct".fields;
+        const field_names = opt_type_info.@"struct".field_names;
 
         comptime var out_struct = ParserOptions{
             .branch_quota = null,
@@ -24,9 +24,9 @@ pub const ParserOptions = struct {
         };
 
         @setEvalBranchQuota(INTERNAL_BRANCH_QUOTA);
-        inline for (fields) |field| {
-            if (@hasField(ParserOptions, field.name)) {
-                @field(out_struct, field.name) = @field(opt, field.name);
+        inline for (field_names) |field_name| {
+            if (@hasField(ParserOptions, field_name)) {
+                @field(out_struct, field_name) = @field(opt, field_name);
             }
         }
 
@@ -85,15 +85,15 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
         const est_size = opt_struct.out_size orelse (input.len * 4);
 
         var arr = StaticArrayProxy(est_size){
-            .ptr = .{0} ** est_size,
+            .ptr = @splat(0),
             .len = 0,
             .capacity = est_size,
         };
 
         var i: usize = 0;
         var ch: u8 = undefined;
-        var tag: [commons.TAG_GROUP_CAPACITY:0]u8 = .{0} ** commons.TAG_GROUP_CAPACITY;
-        var split_arr: [commons.SPLIT_CAPACITY]usize = .{0} ** commons.SPLIT_CAPACITY;
+        var tag: [commons.TAG_GROUP_CAPACITY:0]u8 = @splat(0);
+        var split_arr: [commons.SPLIT_CAPACITY]usize = @splat(0);
 
         outer_parse_loop: while (i < input.len and arr.len < arr.capacity) : (i += 1) {
             ch = input[i];
@@ -231,7 +231,7 @@ pub fn parseComptime(comptime input: []const u8, comptime opt: anytype) [:0]cons
             }
         }
 
-        return (arr.ptr[0..arr.len].* ++ .{0})[0..arr.len:0];
+        return (arr.ptr[0..arr.len].* ++ .{0})[0..arr.len :0];
     }
 }
 
@@ -312,7 +312,9 @@ test "5 tabs (comptime)" {
         \\
     );
 
-    try std.testing.expectEqualStrings("Start" ++ ("\t" ** 5) ++ "tabsssss!\n", five_tabs);
+    const tabs: [5]u8 = @splat('\t');
+
+    try std.testing.expectEqualStrings("Start" ++ tabs ++ "tabsssss!\n", five_tabs);
 }
 
 test "12 tabs (comptime)" {
@@ -321,7 +323,9 @@ test "12 tabs (comptime)" {
         \\
     );
 
-    try std.testing.expectEqualStrings("Start" ++ ("\t" ** 12) ++ "tabs!\n", tabs_x12);
+    const tabs: [12]u8 = @splat('\t');
+
+    try std.testing.expectEqualStrings("Start" ++ tabs ++ "tabs!\n", tabs_x12);
 }
 
 test "Leaking test (tabs x300) (comptime)" {
@@ -330,7 +334,8 @@ test "Leaking test (tabs x300) (comptime)" {
     ;
     const tabs_x300 = comptime parseComptime(fmt_tabs_x300, .{ .out_size = 400 });
 
-    const str = "Start" ++ ("\t" ** 300) ++ "tabs!";
+    const tabs: [300]u8 = @splat('\t');
+    const str = "Start" ++ tabs ++ "tabs!";
 
     try std.testing.expectEqualStrings(str, tabs_x300);
 }
@@ -340,7 +345,6 @@ test "Line feed test 1 (comptime)" {
         \\Topic:<!LF>Blah blah...<!LF>
         \\
     );
-
 
     try std.testing.expectEqualStrings("Topic:\nBlah blah...\n\n", lf_test1);
 }
@@ -353,7 +357,9 @@ test "Line feed test 2 (comptime)" {
         \\
     );
 
-    try std.testing.expectEqualStrings("Topic:" ++ ("\n" ** 6), lf_x3_test1);
+    const newlines: [6]u8 = @splat('\n');
+
+    try std.testing.expectEqualStrings("Topic:" ++ newlines, lf_x3_test1);
 }
 
 test "Carriage return test 1 (comptime)" {

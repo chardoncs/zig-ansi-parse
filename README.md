@@ -2,6 +2,8 @@
 
 Comptime-proof ANSI format parsing library for Zig.
 
+Requires Zig 0.17.0 or later.
+
 [How it works?](https://github.com/chardoncs/zig-ansi-parse/wiki/Syntax)
 
 ## Install
