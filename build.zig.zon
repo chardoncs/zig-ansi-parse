@@ -1,6 +1,6 @@
 .{
     .name = .ansi_parse,
-    .version = "0.2.1",
+    .version = "0.3.0",
     .fingerprint = 0x9cd00b1cbb15614a,
     .minimum_zig_version = "0.17.0",
     .dependencies = .{},
